@@ -116,7 +116,7 @@ async fn save_settings(
     settings.riot_client_path = settings.riot_client_path.replace('/', "\\");
     settings.league_path = settings.league_path.replace('/', "\\");
     settings.valorant_path = settings.valorant_path.replace('/', "\\");
-    settings.twoxko_path = settings.twoxko_path.replace('/', '\\');
+    settings.twoxko_path = settings.twoxko_path.replace('/', "\\");
 
     if let Err(e) = set_auto_startup(settings.start_with_windows) {
         println!("Failed to set auto startup: {}", e);
@@ -376,7 +376,7 @@ async fn launch_game(
     let launch_args = match selected_game.as_str() {
         "valorant" => "--launch-product=valorant --launch-patchline=live",
         "league" => "--launch-product=league_of_legends --launch-patchline=live",
-        "2xko" => "--launch-product=lion --launch-patchline=live"
+        "2xko" => "--launch-product=lion --launch-patchline=live",
         _ => return Err("Invalid game type".to_string()),
     };
 

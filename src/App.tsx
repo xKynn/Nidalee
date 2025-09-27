@@ -7,8 +7,6 @@ import { Statistics } from './components/Statistics';
 import { Settings } from './components/Settings';
 import { FaGithub } from 'react-icons/fa';
 import { open } from '@tauri-apps/api/shell';
-import { invoke } from '@tauri-apps/api/tauri';
-import { logAppOpen, logInstallation } from './firebase';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('main');
@@ -16,14 +14,10 @@ const App: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        const isFirstRun = await invoke<boolean>('check_first_run');
-        if (isFirstRun) {
-          logInstallation();
-        }
+        //const isFirstRun = await invoke<boolean>('check_first_run');
       } catch (error) {
         console.error('Failed to check first run:', error);
       }
-      logAppOpen();
     };
 
     init();
