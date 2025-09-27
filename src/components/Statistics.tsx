@@ -114,8 +114,9 @@ export const Statistics: React.FC = () => {
     : accounts;
 
   const totalAccounts = accounts.length;
-  const leagueAccounts = accounts.filter(a => a.game_type === 'league' || a.game_type === 'both').length;
-  const valorantAccounts = accounts.filter(a => a.game_type === 'valorant' || a.game_type === 'both').length;
+  const leagueAccounts = accounts.filter(a => a.game_type === 'league' || a.game_type === 'all').length;
+  const valorantAccounts = accounts.filter(a => a.game_type === 'valorant' || a.game_type === 'all').length;
+  const twoXKOAccounts = accounts.filter(a => a.game_type === '2xko' || a.game_type === 'all').length;
   const categorizedAccounts = accounts.filter(a => a.category).length;
 
   return (
@@ -142,6 +143,13 @@ export const Statistics: React.FC = () => {
             <span>Valorant Accounts</span>
           </p>
           <p className="text-2xl mt-2">{valorantAccounts}</p>
+        </div>
+        <div className="bg-bl-gray border border-bl-light-gray rounded-md p-4">
+          <p className="text-sm text-bl-red flex items-center gap-2">
+            <FaStar size={14} />
+            <span>2XKO Accounts</span>
+          </p>
+          <p className="text-2xl mt-2">{twoXKOAccounts}</p>
         </div>
         <div className="bg-bl-gray border border-bl-light-gray rounded-md p-4">
           <p className="text-sm text-bl-red flex items-center gap-2">
@@ -309,8 +317,8 @@ export const Statistics: React.FC = () => {
               <div>
                 <span className="text-gray-400">Game:</span>
                 <span className="ml-2">
-                  {account.game_type === 'both' ? 'League & VALORANT' :
-                    account.game_type === 'league' ? 'League of Legends' : 'VALORANT'}
+                  {account.game_type === 'all' ? 'League, VALORANT & 2XKO' :
+                    account.game_type === 'league' ? 'League of Legends' : (account.game_type === 'valorant' ? 'VALORANT' : '2XKO')}
                 </span>
               </div>
               <div>

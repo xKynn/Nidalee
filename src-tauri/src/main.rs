@@ -49,6 +49,7 @@ pub struct Settings {
     pub riot_client_path: String,
     pub league_path: String,
     pub valorant_path: String,
+    pub twoxko_path: String,
     pub start_with_windows: bool,
     pub minimize_to_tray: bool,
     pub minimize_on_game_launch: bool,
@@ -72,6 +73,7 @@ struct AppState {
 struct GameStatus {
     league_running: bool,
     valorant_running: bool,
+    twoxko_running: bool
 }
 
 #[tauri::command]
@@ -114,6 +116,7 @@ async fn save_settings(
     settings.riot_client_path = settings.riot_client_path.replace('/', "\\");
     settings.league_path = settings.league_path.replace('/', "\\");
     settings.valorant_path = settings.valorant_path.replace('/', "\\");
+    settings.twoxko_path = settings.twoxko_path.replace('/', '\\');
 
     if let Err(e) = set_auto_startup(settings.start_with_windows) {
         println!("Failed to set auto startup: {}", e);
@@ -192,7 +195,8 @@ async fn launch_game(
 
     let game_status = check_game_status().await?;
     if (selected_game == "league" && game_status.league_running) 
-        || (selected_game == "valorant" && game_status.valorant_running) {
+        || (selected_game == "valorant" && game_status.valorant_running)
+        || (selected_game == "2xko" && game_status.twoxko_running) {
         return Err("Game is already running".to_string());
     }
 
@@ -244,6 +248,8 @@ async fn launch_game(
                 PCSTR::null(),
             );
 
+            let twoxko_update_window = league_update_window;
+
             let mut is_updating = false;
             let mut text = [0u8; 256];
 
@@ -265,6 +271,14 @@ async fn launch_game(
 
             if league_update_window != HWND(0) {
                 GetWindowTextA(league_update_window, &mut text);
+                let window_text = String::from_utf8_lossy(&text).to_string();
+                is_updating |= window_text.contains("Update") || 
+                              window_text.contains("Installing") ||
+                              window_text.contains("Updating");
+            }
+
+            if twoxko_update_window != HWND(0) {
+                GetWindowTextA(twoxko_update_window, &mut text);
                 let window_text = String::from_utf8_lossy(&text).to_string();
                 is_updating |= window_text.contains("Update") || 
                               window_text.contains("Installing") ||
@@ -362,6 +376,7 @@ async fn launch_game(
     let launch_args = match selected_game.as_str() {
         "valorant" => "--launch-product=valorant --launch-patchline=live",
         "league" => "--launch-product=league_of_legends --launch-patchline=live",
+        "2xko" => "--launch-product=lion --launch-patchline=live"
         _ => return Err("Invalid game type".to_string()),
     };
 
@@ -393,6 +408,7 @@ async fn launch_game(
             let game_running = match selected_game.as_str() {
                 "valorant" => current_status.valorant_running,
                 "league" => current_status.league_running,
+                "2xko" => current_status.twoxko_running,
                 _ => false,
             };
 
@@ -695,6 +711,9 @@ async fn check_game_status() -> Result<GameStatus, String> {
             || process_list.contains("LeagueClientUx.exe"),
         valorant_running: process_list.contains("VALORANT.exe")
             || process_list.contains("VALORANT-Win64-Shipping.exe"),
+        twoxko_running: process_list.contains("Lion.exe")
+            || process_list.contains("Lion-Win64-Shipping.exe")
+            || process_list.contains("OfflineLauncher.exe")
     })
 }
 
@@ -713,6 +732,14 @@ async fn force_close_game(game_type: String) -> Result<(), String> {
         "valorant" => vec![
             "VALORANT.exe",
             "VALORANT-Win64-Shipping.exe",
+            "RiotClientServices.exe",
+            "RiotClientUx.exe",
+            "RiotClientUxRender.exe",
+        ],
+        "2xko" => vec![
+            "Lion.exe",
+            "Lion-Win64-Shipping.exe",
+            "OfflineLauncher.exe",
             "RiotClientServices.exe",
             "RiotClientUx.exe",
             "RiotClientUxRender.exe",
@@ -827,6 +854,7 @@ fn main() {
             riot_client_path: riot_client_path.clone(),
             league_path: String::new(),
             valorant_path: String::new(),
+            twoxko_path: String::new(),
             start_with_windows: false,
             minimize_to_tray: false,
             minimize_on_game_launch: false,
@@ -846,6 +874,7 @@ fn main() {
             riot_client_path,
             league_path: String::new(),
             valorant_path: String::new(),
+            twoxko_path: String::new(),
             start_with_windows: false,
             minimize_to_tray: false,
             minimize_on_game_launch: false,

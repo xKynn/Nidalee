@@ -14,6 +14,7 @@ export interface Settings {
     riot_client_path: string;
     league_path: string;
     valorant_path: string;
+    twoxko_path: string;
     startWithWindows: boolean;
     minimizeToTray: boolean;
 }

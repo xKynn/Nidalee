@@ -12,6 +12,7 @@ export interface Account {
 export interface Settings {
     riot_client_path: string;
     league_path: string;
+    twoxko_path: string;
     valorant_path: string;
     start_with_windows: boolean;
     minimize_to_tray: boolean;

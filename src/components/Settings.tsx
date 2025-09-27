@@ -10,6 +10,7 @@ export const Settings: React.FC = () => {
     riot_client_path: '',
     league_path: '',
     valorant_path: '',
+    twoxko_path: '',
     start_with_windows: false,
     minimize_to_tray: false,
     login_delay: 5,

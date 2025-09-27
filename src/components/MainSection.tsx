@@ -8,6 +8,7 @@ import { FaGamepad, FaUser, FaFolder, FaPlay, FaClock, FaExclamationTriangle } f
 interface GameStatus {
   league_running: boolean;
   valorant_running: boolean;
+  twoxko_running: boolean;
 }
 
 export const MainSection: React.FC = () => {
@@ -17,7 +18,7 @@ export const MainSection: React.FC = () => {
   const [selectedGame, setSelectedGame] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
-  const [gameStatus, setGameStatus] = useState<GameStatus>({ league_running: false, valorant_running: false });
+  const [gameStatus, setGameStatus] = useState<GameStatus>({ league_running: false, valorant_running: false, twoxko_running: false });
   const [showWarning, setShowWarning] = useState(false);
 
   useEffect(() => {
@@ -53,7 +54,8 @@ export const MainSection: React.FC = () => {
 
       const currentStatus = await invoke<GameStatus>('check_game_status');
       if ((selectedGame === 'league' && !currentStatus.league_running) ||
-        (selectedGame === 'valorant' && !currentStatus.valorant_running)) {
+        (selectedGame === 'valorant' && !currentStatus.valorant_running) ||
+      (selectedGame === '2xko' && !currentStatus.twoxko_running)) {
         await launchNewGame();
         return;
       }
@@ -66,7 +68,8 @@ export const MainSection: React.FC = () => {
         const status = await invoke<GameStatus>('check_game_status');
 
         if ((selectedGame === 'league' && !status.league_running) ||
-          (selectedGame === 'valorant' && !status.valorant_running)) {
+          (selectedGame === 'valorant' && !status.valorant_running) ||
+          (selectedGame === '2xko' && !currentStatus.twoxko_running)) {
           await launchNewGame();
           return;
         }
@@ -110,7 +113,7 @@ export const MainSection: React.FC = () => {
     }
 
     const currentStatus = await invoke<GameStatus>('check_game_status');
-    if (currentStatus.league_running || currentStatus.valorant_running) {
+    if (currentStatus.league_running || currentStatus.valorant_running || currentStatus.twoxko_running)  {
       setShowWarning(true);
       return;
     }
@@ -137,9 +140,10 @@ export const MainSection: React.FC = () => {
               <h3 className="text-lg font-medium">Game Already Running</h3>
             </div>
             <p className="text-gray-400 mb-6">
-              {gameStatus.league_running && gameStatus.valorant_running ? 'League of Legends and VALORANT are' :
-                gameStatus.league_running ? 'League of Legends is' : 'VALORANT is'} currently running.
-              Would you like to close {gameStatus.league_running && gameStatus.valorant_running ? 'them' : 'it'} and launch {selectedGame === 'league' ? 'League of Legends' : 'VALORANT'}?
+              You have game(s) currently running ({gameStatus.twoxko_running ? '2XKO' : ''}
+              {gameStatus.league_running ? (gameStatus.twoxko_running ? ', League of Legends' : 'League of Legends') : ''}
+              {gameStatus.valorant_running ? (gameStatus.twoxko_running || gameStatus.league_running ? ', Valorant' : 'Valorant') : ''}).
+              Would you like to close the game(s) and launch {selectedGame === 'league' ? 'League of Legends' : selectedGame === 'valorant' ? 'VALORANT' : '2XKO'}?
             </p>
             <div className="flex justify-end gap-4">
               <button
@@ -158,6 +162,9 @@ export const MainSection: React.FC = () => {
                     }
                     if (gameStatus.valorant_running) {
                       await invoke('force_close_game', { gameType: 'valorant' });
+                    }
+                    if (gameStatus.twoxko_running) {
+                      await invoke('force_close_game', { gameType: '2xko' });
                     }
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     await handleForceClose();
@@ -256,6 +263,14 @@ export const MainSection: React.FC = () => {
             >
               <img src="icons/league.png" alt="League of Legends" className="w-4 h-4" />
               <span>League of Legends</span>
+            </button>
+            <button
+              onClick={() => setSelectedGame('2xko')}
+              className={`flex-1 bg-bl-gray border ${selectedGame === '2xko' ? 'border-bl-red' : 'border-bl-light-gray'
+                } rounded-md p-3 hover:border-bl-red transition-colors flex items-center justify-center gap-2`}
+            >
+              <img src="icons/2xko.png" alt="2XKO" className="w-4 h-4" />
+              <span>2XKO</span>
             </button>
           </div>
         </div>

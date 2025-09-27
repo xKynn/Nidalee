@@ -215,7 +215,8 @@ export const AddAccount: React.FC = () => {
                 <option value="">Select game...</option>
                 <option value="valorant">VALORANT</option>
                 <option value="league">League of Legends</option>
-                <option value="both">Both Games</option>
+                <option value="2xko">2XKO</option>
+                <option value="all">All Games</option>
               </select>
             </div>
           </div>
